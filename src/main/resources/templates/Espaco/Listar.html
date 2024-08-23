@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layoutPadrao.html}">
+<head>
+    <title>LISTA DE ESPACO</title>
+</head>
+<body>
+<header th:replace="~{/fragments/header.html}" th:fragment="header">
+
+</header>
+<div class="container" layout:fragment="context">
+    <p th:text="${mensagem}" th:class="${style}"></p>
+    <div class="listar">
+        <h1>
+            LISTAR ESPACO:
+        </h1>
+
+        <form method="post" th:object="${espacoModel}" action="listagemEspaco">
+            <div class="mb-3">
+                <label class="form-label">NOME DO ESPAÇO:</label>
+                <input type="text" th:field="*{nomeEspaco}" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">CADASTRAR</button>
+        </form><br>
+        <table class="table table-bordered" style="text-align: center">
+            <thead>
+            <tr>
+                <td scope="col">ID</td>
+                <td scope="col">NOME</td>
+                <td scope="col">STATUS</td>
+                <td scope="col">ATUALIZAR</td>
+                <td scope="col">EXCLUIR</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="espaco : ${espacoModelList}">
+                <td th:text="${espaco.id_espaco}"></td>
+                <td th:text="${espaco.nomeEspaco}"></td>
+                <td th:text="${espaco.status}"></td>
+                <td>
+                    <form method="get" action="/atualizarPorIdEsp">
+                        <input type="hidden" name="id" th:value="${espaco.id_espaco}">
+                        <input type="hidden" name="nome" th:value="${espaco.nomeEspaco}">
+                        <button type="submit" class="btn btn-primary">ATUALIZAR</button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="/deletarEspaco">
+                        <input type="hidden" name="id" th:value="${espaco.id_espaco}"/>
+                        <button type="submit" class="btn btn-danger">EXCLUIR</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<footer id="footer" th:replace="~{/fragments/footer.html}" th:fragment="footer">
+
+</footer>
+</body>
+</html>
