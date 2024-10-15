@@ -4,6 +4,8 @@ import br.edu.ifpi.catce.sistemareserva.model.EquipamentoModel;
 import br.edu.ifpi.catce.sistemareserva.repository.EquipamentoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -45,8 +47,8 @@ public class EquipamentoController {
         model.addAttribute(new EquipamentoModel());
         return "Equipamento/Listar";
     }
-    @PostMapping("/listagemEquipamento")
-    public String listagemEquipamento(@ModelAttribute EquipamentoModel equipamentoModel, Model model, RedirectAttributes redirectAttributes){
+    @GetMapping("/listagemEquipamento")
+    public String listagemEquipamento(@ModelAttribute EquipamentoModel equipamentoModel, Model model, RedirectAttributes redirectAttributes,@PageableDefault(size = 2) Pageable pageable){
         List<EquipamentoModel> equipamentos = equipamentoRepository.findByNomeEquipamento(equipamentoModel.getNomeEquipamento().toUpperCase());
         if(equipamentos.size() > 0){
             model.addAttribute(equipamentos);

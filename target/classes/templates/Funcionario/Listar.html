@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layoutPadrao.html}">
+<head>
+    <title>LISTA DE FUNCIONARIO</title>
+</head>
+<body>
+<header th:replace="~{/fragments/header.html}" th:fragment="header">
+
+</header>
+<div class="container" layout:fragment="context">
+    <p th:text="${mensagem}" th:class="${style}"></p>
+    <div class="listar">
+        <h1>
+            LISTAR FUNCIONARIO:
+        </h1>
+
+        <form method="post" th:object="${funcionarioModel}" action="/ListagemFuncionario">
+            <div class="mb-3">
+                <label class="form-label">NOME DO FUNCIONARIO:</label>
+                <input type="text" th:field="*{nomeFuncionario}" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">LISTAR</button>
+        </form><br>
+        <table class="table table-bordered" style="text-align: center">
+            <thead>
+            <tr>
+                <td scope="col">ID</td>
+                <td scope="col">NOME</td>
+                <td scope="col">CARGO</td>
+                <td scope="col">ATUALIZAR</td>
+                <td scope="col">EXCLUIR</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="funcionarios : ${funcionarioModelList}">
+                <td th:text="${funcionarios.id}"></td>
+                <td th:text="${funcionarios.nomeFuncionario}"></td>
+                <td th:text="${funcionarios.cargo}"></td>
+                <td>
+                    <form method="get" action="/atualizarPorIdFunc">
+                        <input type="hidden" name="id" th:value="${funcionarios.id}">
+                        <input type="hidden" name="nome" th:value="${funcionarios.nomeFuncionario}">
+                        <button type="submit" class="btn btn-primary">ATUALIZAR</button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="/deletarFuncionario">
+                        <input type="hidden" name="id" th:value="${funcionarios.id}"/>
+                        <button type="submit" class="btn btn-danger">EXCLUIR</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<footer id="footer" th:replace="~{/fragments/footer.html}" th:fragment="footer">
+
+</footer>
+</body>
+</html>

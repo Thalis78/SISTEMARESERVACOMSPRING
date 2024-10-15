@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layoutPadrao.html}">
+<head>
+  <title>LISTA DE RESERVA(EQUIPAMENTO):</title>
+</head>
+<body>
+<header th:replace="~{/fragments/header.html}" th:fragment="header">
+
+</header>
+<div class="container" layout:fragment="context">
+  <p th:text="${mensagem}" th:class="${style}"></p>
+  <div class="listar">
+    <h1>
+      LISTAR RESERVA:
+    </h1>
+
+    <form method="post" th:object="${reservaEquipamentoModel}" action="/ListagemRealizadaReservaEqui">
+      <div class="mb-3">
+        <label class="form-label">NOME DO EQUIPAMENTO:</label>
+        <input type="text" th:field="*{equipamento.nomeEquipamento}" class="form-control">
+      </div>
+      <button type="submit" class="btn btn-primary">LISTAR</button>
+    </form><br>
+    <table class="table table-bordered" style="text-align: center">
+      <thead>
+      <tr>
+        <td scope="col">ID</td>
+        <td scope="col">EQUIPAMENTO</td>
+        <td scope="col">FUNCIONARIO</td>
+        <td scope="col">ATUALIZAR</td>
+        <td scope="col">EXCLUIR</td>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="reservas : ${reservas}">
+        <td th:text="${reservas.id_reserva}"></td>
+        <td th:text="${reservas.equipamento.nomeEquipamento}"></td>
+        <td th:text="${reservas.funcionario.nomeFuncionario}"></td>
+        <td>
+          <form method="get" action="/atualizarPorIdReservaEquipamento">
+            <input type="hidden" name="id" th:value="${reservas.id_reserva}">
+            <button type="submit" class="btn btn-primary">ATUALIZAR</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" action="/deletarReservaEqui">
+            <input type="hidden" name="id" th:value="${reservas.id_reserva}"/>
+            <button type="submit" class="btn btn-danger">EXCLUIR</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+<footer id="footer" th:replace="~{/fragments/footer.html}" th:fragment="footer">
+
+</footer>
+</body>
+</html>
