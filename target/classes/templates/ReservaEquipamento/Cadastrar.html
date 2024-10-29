@@ -18,16 +18,16 @@
       CADASTRO RESERVA(EQUIPAMENTO):
     </h1>
     <form method="post" th:object="${reservaEquipamentoModel}" action="/cadastroRealizadoReservaEqui">
-      <div class="mb-3">
-        <label class="form-label">EQUIPAMENTO:</label>
+      <div class="mb-3 required">
+        <label class="form-label">EQUIPAMENTO</label>
         <select class="form-select" th:field="${reservaEquipamentoModel.equipamento}" required>
           <option th:each="equipamentos : ${equipamentoModelList}"
                   th:text="${equipamentos.nomeEquipamento}"
                   th:value="${equipamentos.id_equipamento}"></option>
         </select>
       </div>
-      <div class="mb-3">
-        <label class="form-label">FUNCIONARIO:</label>
+      <div class="mb-3 required">
+        <label class="form-label">FUNCIONARIO</label>
         <select class="form-select" th:field="${reservaEquipamentoModel.funcionario}" required>
           <option th:each="funcionarios : ${funcionarioModelList}"
                   th:text="${funcionarios.nomeFuncionario}"

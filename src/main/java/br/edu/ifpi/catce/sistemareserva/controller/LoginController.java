@@ -11,17 +11,10 @@ public class LoginController {
     public String login(@RequestParam(value = "error", required = false) String error, RedirectAttributes redirectAttributes) {
         if (error != null) {
             redirectAttributes.addFlashAttribute("mensagem", "Erro! Entre com um usuário e senha corretos.");
-            redirectAttributes.addFlashAttribute("style", "mensagemErro");
+            redirectAttributes.addFlashAttribute("style", "alert alert-danger");
             return "redirect:/login";
         }
         return "login";
-    }
-
-    @GetMapping("/loginErro")
-    public String loginErro(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("mensagem", "A senha ou usuário está errado");
-        redirectAttributes.addFlashAttribute("style", "mensagemErro");
-        return "redirect:/login";
     }
 
 }

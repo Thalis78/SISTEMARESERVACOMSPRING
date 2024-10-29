@@ -16,25 +16,34 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
+// ISSO INDICA QUE ESSA CLASSE É UMA CONTROLLER QUE VAI SER MAPEADA PELO SPRING NA EXECUÇÃO.
 @Controller
 public class EquipamentoController {
+    //ESSA ANOTAÇÃO É USADA PARA INDICAR QUE UMA DEPENDÊNCIA DEVE SER INJETADA
+    //SPRING BUSCA UMA ISTÂNCIA DA CLASSE CORRESPONDENTE  E A INJETA ALI.
     @Autowired
     EquipamentoRepository equipamentoRepository;
-
+    //REQUESIÇÃO VIA GET;
     @GetMapping("/equipamento")
     public String equipamento(){
         return "Equipamento/Equipamento";
     }
 
-
     @GetMapping("/cadastroEquipamento")
+    //MODEL É USADO PARA TRANSFERIR DADOS ENTRE A CONTROLLER E A VIEW NA MESMA REQUISIÇÃO.
     public String cadastroEquipamento(Model model){
+        //ADDATRIBUTE VAI ADICIONAR UMA NOVA INSTÂNCIA DE UM OBJETO DE UMA CLASSE
+        //VAI PERMITIR QUE A VIEW ACESSE OS DADOS DO OBJETO DURANTE A RENDERIZAÇÃO.
+        //ESSE ATRIBUTOS SÃO TEMPORÁRIOS E EXISTEM APENAS DURANTE O PROCESSAMENTO DA REQUESIÇÃO ATUAL. APÓS A VIEW SER RENDERIZADA, OS ATRIBUTOS NÃO ESTÃO MAIS DISPONÍVEIS.
         model.addAttribute(new EquipamentoModel());
         return "Equipamento/Cadastrar";
     }
-
+    //REQUESIÇÃO VIA POST
     @PostMapping("/cadastroRealizado")
+    //REDIRECTATTRIBUTES USADO PARA PASSAR ATRIBUTOS DE UMA REQUESIÇÃO PARA OUTRA DURANTE UM REDIRECIONAMENTO.
+    //ELE VAO USADO PARA PASSAR DADOS ENTRE REQUISIÇÕES APÓS UM REDIRECIONAMENTO.
+    //FLASH ATTRIBUTES É USADO PARA ADICIONAR ATRIBUTOS TEMPORÁRIOS E DESAPARECEM APÓS A PRÓXIMA REQUISIÇÃO.
+    //ESTÃO DISPONÍVEIS APENAS NA PRÓXIMA REQUISIÇÃO.
     public String cadastroRealizado(EquipamentoModel equipamentoModel, RedirectAttributes redirectAttributes){
         equipamentoModel.setNomeEquipamento(equipamentoModel.getNomeEquipamento().toUpperCase());
         equipamentoRepository.save(equipamentoModel);
@@ -46,12 +55,15 @@ public class EquipamentoController {
     }
     // O CONTROLADOR RETORNA A PRIMEIRA PÁGINA COM TODOS OS EQUIPAMENTOS COM LOTE DE 5 POR VEZ.
     @GetMapping("/listEquipamento")
+    // REQUESTPARAM É USADO PARA ESPECIFICAR QUE IREMOS RECEBER UM DADO EM UMA REQUISIÇÃO
+    // DEFINIMOS UM VALOR PADRÃO PRA CASO O PARÂMETRO NÃO SEJA FORNECIDO NA REQUISIÇÃO.
     public String listEquipamento(@RequestParam(defaultValue = "0") int page, Model model) {
         return loadEquipamentoPage(page, model, null);
     }
 
     //CONTEM DADOS DO FORMULÁRIO, ESPECIFICAMENTE O NOME DO EQUIPAMENTO PARA FILTRAGEM.
     @GetMapping("/listagemEquipamento")
+    //MODELATTRIBUTE VAI SER USADO PARA VINCULAR DADOS DE UM FORMULÁRIO A UM OBJETO EM UM MÉTODO DO CONTROLADOR.
     public String listagemEquipamento(@ModelAttribute EquipamentoModel equipamentoModel,
                                       Model model, RedirectAttributes redirectAttributes,
                                       @RequestParam(defaultValue = "0") int page) {
@@ -60,19 +72,33 @@ public class EquipamentoController {
                 : "";
 
         // PASSA A PÁGINA ATUAL COM O FILTRO;
+
         return loadEquipamentoPage(page, model, filter);
     }
 
     // VAI MOSTRAR TODOS OS RESULTADOS PAGINADO EM LOTES DE 5 POR VEZ.
     // LÓGICA USADA PARA FORMATAR OS DADOS DA VISUALIZAÇÃO, INDEPENDETEMENTE DE O USUÁRIO ESTAR FILTRANDO OU NÃO.
     private String loadEquipamentoPage(int page, Model model, String filter) {
+        //PAGEABLE É UMA INTERFACE QUE ENCAPSULA INFORMAÇÕES SOBRE A SOLICITAÇÃO DE UMA PÁGINA DE DADOS.
+        //ISSO INCLUI O NÚMERO DE PÁGINA, O TAMANHO DA PÁGINA E,OPCIONALMENTE, A ODERNAÇÃO DOS RESULTADOS.
         Pageable pageable = PageRequest.of(page, 5);
+        //É USADO PARA REPRESENTAR UMA PÁGINA DE RESULTADOS EM CONSULTAS PÁGINADAS.
+        // NELA VAI CONTER INFORMAÇÕES DOS DADOS E A QUANTIDADE DE NÚMEROS DE PÁGINA.
         Page<EquipamentoModel> equipamentosPage;
-
+        //CASO O FILTRO SEJA DIFERENTE DE NULOS OU DIFERENTE DE VAZIA;
+        //RETORNA A FILTRAGEM
         if (filter != null && !filter.isEmpty()) {
+            model.addAttribute("totalItems",1);
             equipamentosPage = equipamentoRepository.findByNomeEquipamento(filter, pageable);
+            if(equipamentoRepository.findByNomeEquipamento(filter,pageable).getSize() > 5 ){
+                model.addAttribute("totalItems",1);
+            }
         } else {
+            //RETORNA TODOS OS ELEMENTOS QUE EXISTEM NO BANCO DE DADOS
             equipamentosPage = equipamentoRepository.findAll(pageable);
+            if(equipamentoRepository.findAll().size() > 5){
+                model.addAttribute("totalItems",1);
+            }
         }
 
         model.addAttribute("equipamentos", equipamentosPage.getContent());

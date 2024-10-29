@@ -18,7 +18,7 @@
             </div>
             <button type="submit" class="btn btn-primary">LISTAR</button>
             <button class="btn btn-dark">
-                <a href="cadastroEquipamento" style="color: white; text-decoration: none">NOVO EQUIPAMENTO</a>
+                <a href="cadastroEquipamento" style="color: white; text-decoration: none">CADASTRAR</a>
             </button>
         </form><br>
 
@@ -56,11 +56,20 @@
         </table>
 
         <div>
+
+            <!--
+            THYMELEAF PERMITE CRIAR CONDICIONAIS COM (IF E ELSE) E SWITCH
+            TH:IF É USADO PARA CRIAR CONDICIONAIS-->
             <nav aria-label="Page navigation example" th:if="${totalItems > 0}">
                 <ul class="pagination" style="margin-left: 35%;">
+                    <!-- THYMELEAF PERMITE CRIAR CLASSES E IDENTIFICADORES QUE IRÃO SER REFERÊNCIADO BASEADO NA REQUESIÇÃO -->
+                    <!-- UTILIZAÇÃO DO TERNARIO-->
                     <li class="page-item" th:class="${currentPage == 0} ? 'disabled'">
+                    <!-- THYMLEAF PERMITE ESPECIFICAR QUAL O CAMINHO QUE VAI SER REDIRECIONADO -->
                         <a class="page-link" th:href="@{/listagemEquipamento(page=${currentPage - 1}, nomeEquipamento=${filter})}" aria-label="Previous">&laquo;</a>
                     </li>
+                    <!-- A UTILIZAÇÃO D0 TH:BLOCk É UMA TAG PROCESSOR DO THYMELAF USADA PARA CRIAR ELEMENTOS HTML
+                        A UTILIZAÇÃO DO TH:EACH É USADO PARA CRIAR ELEMENTOS BASEADO NUMA ESTRUTURA DE REPETIÇÃO-->
                     <th:block th:each="i : ${pageNumbers}">
                         <li class="page-item" th:class="${i == currentPage} ? 'active'">
                             <a class="page-link" th:href="@{/listagemEquipamento(page=${i}, nomeEquipamento=${filter})}" th:text="${i + 1}"

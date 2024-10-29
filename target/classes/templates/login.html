@@ -22,18 +22,18 @@
 </header>
 <div class="container" layout:fragment="context">
     <div class="cadastro">
+        <p th:text="${mensagem}" th:class="${style}"></p>
         <h1>
             LOGIN:
         </h1>
         <div>
             <form method="post" th:action="@{/login}">
-                <p th:text="${mensagem}" th:class="${style}"></p>
-                <div class="mb-3">
-                    <label class="form-label" for="username">Usúario:</label>
+                <div class="mb-3 required">
+                    <label class="form-label" for="username">Usúario</label>
                     <input class="form-control" type="text"  id="username" name="username" required>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label" for="password">Senha:</label>
+                <div class="mb-3 required">
+                    <label class="form-label" for="password">Senha</label>
                     <div class="password-container">
                         <input id="password" class="form-control" name="password"  type="password" required>
                         <button type="button" class="password-toggle" aria-label="Show/Hide password">

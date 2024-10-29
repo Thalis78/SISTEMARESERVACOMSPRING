@@ -13,20 +13,20 @@
             ATUALIZAR RESERVA(ESPAÇO):
         </h1>
         <form method="post" action="/atualizarReservaEspaco">
-            <div class="mb-3">
-                <label for="id" class="form-label">ID DA RESERVA:</label>
+            <div class="mb-3 required">
+                <label for="id" class="form-label">ID DA RESERVA</label>
                 <input type="number" id="id" name="id" class="form-control" th:value="${id}" readonly>
             </div>
-            <div class="mb-3">
-                <label class="form-label" for="espaco">ESPAÇO:</label>
+            <div class="mb-3 required">
+                <label class="form-label" for="espaco">ESPAÇO</label>
                 <select class="form-select" required id="espaco" name="espaco">
                     <option th:each="espacos : ${espacoModelList}"
                             th:text="${espacos.nomeEspaco}"
                             th:value="${espacos.id_espaco}"></option>
                 </select>
             </div>
-            <div class="mb-3">
-            <label class="form-label" for="func">FUNCIONARIO:</label>
+            <div class="mb-3 required">
+            <label class="form-label" for="func">FUNCIONARIO</label>
             <select class="form-select" required name="func" id="func">
                 <option th:each="funcionarios : ${funcionarioModelList}"
                         th:text="${funcionarios.nomeFuncionario}"

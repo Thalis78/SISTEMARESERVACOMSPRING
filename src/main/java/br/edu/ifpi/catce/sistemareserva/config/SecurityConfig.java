@@ -12,17 +12,19 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-
+//ESPECIFICO QUE É UMA CLASSE DE CONFIGURAÇÃO
 @Configuration
+// ATIVANDO A SEGURANÇA WEB
 @EnableWebSecurity
+//CLASSE DE CONFIURAÇÃO DO SECURITY;
 public class SecurityConfig {
 
     @Bean
+    //
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/listEquipamento","listagemEquipamento").permitAll()
                                 .requestMatchers("/static/**").permitAll()
                                 .anyRequest().authenticated()
                 )
