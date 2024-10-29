@@ -5,6 +5,7 @@ html, body {
 
 .required > .form-label::after{
     content: "*";
+    color: red;
 }
 body {
     display: flex;
@@ -51,5 +52,21 @@ footer {
     color: white;
     font-weight: bold;
 }
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
 
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
 
+.form-control {
+    width: 100%;
+    padding-right: 40px;
+}

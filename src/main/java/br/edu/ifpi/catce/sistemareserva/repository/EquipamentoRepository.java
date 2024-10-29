@@ -2,6 +2,8 @@ package br.edu.ifpi.catce.sistemareserva.repository;
 
 import br.edu.ifpi.catce.sistemareserva.model.EquipamentoModel;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +17,6 @@ public interface EquipamentoRepository extends JpaRepository<EquipamentoModel, I
     @Query("UPDATE EquipamentoModel e SET e.nomeEquipamento = :nome, e.quantidade_disponivel = :quant WHERE e.id_equipamento = :id")
     void updateEquipamentoModelById(@Param("id") Integer id, @Param("nome") String nome, @Param("quant") int quant);
 
-    @Modifying
-    @Query("SELECT e FROM EquipamentoModel e WHERE e.nomeEquipamento LIKE %:nomeEquipamento")
-    List<EquipamentoModel> findByNomeEquipamento(String nomeEquipamento);
+    Page<EquipamentoModel> findByNomeEquipamento(String nomeEquipamento, Pageable pageable);
+
 }

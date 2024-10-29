@@ -5,24 +5,23 @@
     <title>LISTA DE EQUIPAMENTO</title>
 </head>
 <body>
-<header th:replace="~{/fragments/header.html}" th:fragment="header">
-
-</header>
+<header th:replace="~{/fragments/header.html}" th:fragment="header"></header>
 <div class="container" layout:fragment="context">
     <p th:text="${mensagem}" th:class="${style}"></p>
     <div class="listar">
-        <h1>
-            LISTAR EQUIPAMENTO:
-        </h1>
+        <h1>LISTAR EQUIPAMENTO:</h1>
 
-        <form method="get" th:object="${equipamentoModel}" action="listagemEquipamento">
+        <form method="get" th:object="${equipamentoModel}" action="/listagemEquipamento">
             <div class="mb-3">
                 <label for="nome_equipamento" class="form-label">NOME DO EQUIPAMENTO:</label>
                 <input type="text" id="nome_equipamento" th:field="*{nomeEquipamento}" class="form-control">
             </div>
             <button type="submit" class="btn btn-primary">LISTAR</button>
-            <button class="btn btn-dark"><a href="cadastroEquipamento" style="color: white; text-decoration: none">NOVO EQUPAMENTO</a></button>
+            <button class="btn btn-dark">
+                <a href="cadastroEquipamento" style="color: white; text-decoration: none">NOVO EQUIPAMENTO</a>
+            </button>
         </form><br>
+
         <table class="table table-bordered" style="text-align: center">
             <thead>
             <tr>
@@ -34,7 +33,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="equipamento : ${equipamentoModelList}">
+            <tr th:each="equipamento : ${equipamentos}">
                 <td th:text="${equipamento.id_equipamento}"></td>
                 <td th:text="${equipamento.nomeEquipamento}"></td>
                 <td th:text="${equipamento.quantidade_disponivel}"></td>
@@ -55,22 +54,27 @@
             </tr>
             </tbody>
         </table>
+
         <div>
-            <nav aria-label="Page navigation example">
-                <ul class="pagination " style="margin-left: 35%;">
-                    <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
-                    <li class="page-item active"><a class="page-link" href="?page=0">1</a></li>
-                    <li class="page-item"><a class="page-link" href="?page=1">2</a></li>
-                    <li class="page-item"><a class="page-link" href="?page=2">3</a></li>
-                    <li class="page-item disabled"><a class="page-link" href="#">&raquo;</a></li>
+            <nav aria-label="Page navigation example" th:if="${totalItems > 0}">
+                <ul class="pagination" style="margin-left: 35%;">
+                    <li class="page-item" th:class="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/listagemEquipamento(page=${currentPage - 1}, nomeEquipamento=${filter})}" aria-label="Previous">&laquo;</a>
+                    </li>
+                    <th:block th:each="i : ${pageNumbers}">
+                        <li class="page-item" th:class="${i == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/listagemEquipamento(page=${i}, nomeEquipamento=${filter})}" th:text="${i + 1}"
+                               aria-current="${i == currentPage ? 'page' : null}"></a>
+                        </li>
+                    </th:block>
+                    <li class="page-item" th:class="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/listagemEquipamento(page=${currentPage + 1}, nomeEquipamento=${filter})}" aria-label="Next">&raquo;</a>
+                    </li>
                 </ul>
             </nav>
         </div>
     </div>
-
 </div>
-<footer id="footer" th:replace="~{/fragments/footer.html}" th:fragment="footer">
-
-</footer>
+<footer id="footer" th:replace="~{/fragments/footer.html}" th:fragment="footer"></footer>
 </body>
 </html>

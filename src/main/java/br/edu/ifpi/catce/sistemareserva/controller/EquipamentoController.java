@@ -4,6 +4,8 @@ import br.edu.ifpi.catce.sistemareserva.model.EquipamentoModel;
 import br.edu.ifpi.catce.sistemareserva.repository.EquipamentoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class EquipamentoController {
@@ -40,26 +44,53 @@ public class EquipamentoController {
         return "redirect:/cadastroEquipamento";
 
     }
-
-
+    // O CONTROLADOR RETORNA A PRIMEIRA PÁGINA COM TODOS OS EQUIPAMENTOS COM LOTE DE 5 POR VEZ.
     @GetMapping("/listEquipamento")
-    public String listEquipamento(Model model){
-        model.addAttribute(new EquipamentoModel());
-        return "Equipamento/Listar";
+    public String listEquipamento(@RequestParam(defaultValue = "0") int page, Model model) {
+        return loadEquipamentoPage(page, model, null);
     }
-    @GetMapping("/listagemEquipamento")
-    public String listagemEquipamento(@ModelAttribute EquipamentoModel equipamentoModel, Model model, RedirectAttributes redirectAttributes,@PageableDefault(size = 2) Pageable pageable){
-        List<EquipamentoModel> equipamentos = equipamentoRepository.findByNomeEquipamento(equipamentoModel.getNomeEquipamento().toUpperCase());
-        if(equipamentos.size() > 0){
-            model.addAttribute(equipamentos);
-        } else{
-            redirectAttributes.addFlashAttribute("mensagem","NÃO EXISTE O EQUIPAMENTO OU NOME NÃO FOI ENCONTRADO");
-            redirectAttributes.addFlashAttribute("style","mensagem alert alert-danger");
-            return "redirect:/listEquipamento";
-        }
-        return "Equipamento/Listar";
 
+    //CONTEM DADOS DO FORMULÁRIO, ESPECIFICAMENTE O NOME DO EQUIPAMENTO PARA FILTRAGEM.
+    @GetMapping("/listagemEquipamento")
+    public String listagemEquipamento(@ModelAttribute EquipamentoModel equipamentoModel,
+                                      Model model, RedirectAttributes redirectAttributes,
+                                      @RequestParam(defaultValue = "0") int page) {
+        String filter = equipamentoModel.getNomeEquipamento() != null
+                ? equipamentoModel.getNomeEquipamento().toUpperCase()
+                : "";
+
+        // PASSA A PÁGINA ATUAL COM O FILTRO;
+        return loadEquipamentoPage(page, model, filter);
     }
+
+    // VAI MOSTRAR TODOS OS RESULTADOS PAGINADO EM LOTES DE 5 POR VEZ.
+    // LÓGICA USADA PARA FORMATAR OS DADOS DA VISUALIZAÇÃO, INDEPENDETEMENTE DE O USUÁRIO ESTAR FILTRANDO OU NÃO.
+    private String loadEquipamentoPage(int page, Model model, String filter) {
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<EquipamentoModel> equipamentosPage;
+
+        if (filter != null && !filter.isEmpty()) {
+            equipamentosPage = equipamentoRepository.findByNomeEquipamento(filter, pageable);
+        } else {
+            equipamentosPage = equipamentoRepository.findAll(pageable);
+        }
+
+        model.addAttribute("equipamentos", equipamentosPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", equipamentosPage.getTotalPages());
+
+        List<Integer> pageNumbers = IntStream.range(0, equipamentosPage.getTotalPages())
+                .boxed()
+                .collect(Collectors.toList());
+        model.addAttribute("pageNumbers", pageNumbers);
+        model.addAttribute("equipamentoModel", new EquipamentoModel());
+        model.addAttribute("filter", filter);
+
+        return "Equipamento/Listar";
+    }
+
+
+
 
 
     @PostMapping("/deletarEquipamento")
