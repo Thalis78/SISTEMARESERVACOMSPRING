@@ -5,6 +5,10 @@ import br.edu.ifpi.catce.sistemareserva.repository.EspacoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -13,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class EspacoController {
@@ -40,20 +46,44 @@ public class EspacoController {
     }
 
     @GetMapping("/listEspaco")
-    public String listEspaco(Model model){
-        model.addAttribute(new EspacoModel());
-        return "Espaco/Listar";
+    public String listEspaco(@RequestParam(defaultValue = "0") int page, Model model) {
+        return loadEspacoPage(page, model, null);
     }
-    @PostMapping("/listagemEspaco")
-    public String listagemEspaco(@ModelAttribute EspacoModel espacoModel, Model model,RedirectAttributes redirectAttributes){
-        List<EspacoModel> espacos = espacoRepository.findByNomeEspaco(espacoModel.getNomeEspaco().toUpperCase());
-        if(espacos.size() > 0){
-            model.addAttribute(espacos);
-        } else{
-            redirectAttributes.addFlashAttribute("mensagem","NÃO EXISTE O ESPAÇO OU O NOME NÃO FOI ENCONTRADO ");
-            redirectAttributes.addFlashAttribute("style","mensagem alert alert-danger");
-            return "redirect:/listEspaco";
+
+    @GetMapping("/listagemEspaco")
+    public String listagemEspaco(@ModelAttribute EspacoModel espacoModel, Model model, RedirectAttributes redirectAttributes, @RequestParam(defaultValue = "0") int page) {
+        String filter = espacoModel.getNomeEspaco() != null ? espacoModel.getNomeEspaco().toUpperCase() : "";
+        return loadEspacoPage(page, model, filter);
+    }
+
+    private String loadEspacoPage(int page, Model model, String filter) {
+        Pageable pageable = PageRequest.of(page, 5); 
+        Page<EspacoModel> espacosPage;
+
+        if (filter != null && !filter.isEmpty()) {
+            model.addAttribute("totalItems",1);
+            espacosPage = espacoRepository.findByNomeEspaco(filter, pageable);
+            if(espacoRepository.findByNomeEspaco(filter,pageable).getSize() > 5 ){
+                model.addAttribute("totalItems",1);
+            }
+        } else {
+            espacosPage = espacoRepository.findAll(pageable);
+            if(espacoRepository.findAll().size() > 5){
+                model.addAttribute("totalItems",1);
+            }
         }
+
+        model.addAttribute("espacos", espacosPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", espacosPage.getTotalPages());
+
+        List<Integer> pageNumbers = IntStream.range(0, espacosPage.getTotalPages())
+                .boxed()
+                .collect(Collectors.toList());
+        model.addAttribute("pageNumbers", pageNumbers);
+        model.addAttribute("espacoModel", new EspacoModel());
+        model.addAttribute("filter", filter);
+
         return "Espaco/Listar";
     }
     @PostMapping("/deletarEspaco")
