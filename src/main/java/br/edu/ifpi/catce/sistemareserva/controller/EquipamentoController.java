@@ -65,7 +65,7 @@ public class EquipamentoController {
     @GetMapping("/listagemEquipamento")
     //MODELATTRIBUTE VAI SER USADO PARA VINCULAR DADOS DE UM FORMULÁRIO A UM OBJETO EM UM MÉTODO DO CONTROLADOR.
     public String listagemEquipamento(@ModelAttribute EquipamentoModel equipamentoModel,
-                                      Model model, RedirectAttributes redirectAttributes,
+                                      Model model,
                                       @RequestParam(defaultValue = "0") int page) {
         String filter = equipamentoModel.getNomeEquipamento() != null
                 ? equipamentoModel.getNomeEquipamento().toUpperCase()
@@ -88,7 +88,6 @@ public class EquipamentoController {
         //CASO O FILTRO SEJA DIFERENTE DE NULOS OU DIFERENTE DE VAZIA;
         //RETORNA A FILTRAGEM
         if (filter != null && !filter.isEmpty()) {
-            model.addAttribute("totalItems",1);
             equipamentosPage = equipamentoRepository.findByNomeEquipamento(filter, pageable);
             if(equipamentoRepository.findByNomeEquipamento(filter,pageable).getSize() > 5 ){
                 model.addAttribute("totalItems",1);

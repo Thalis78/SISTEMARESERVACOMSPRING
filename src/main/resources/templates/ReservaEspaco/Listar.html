@@ -13,12 +13,15 @@
 
     <div class="listar">
         <h1>LISTAR RESERVA:</h1>
-        <form method="post" th:object="${reservaEspacoModel}" action="/ListagemRealizadaReservaEsp">
+        <form method="get" th:object="${reservaEspacoModel}" action="/ListagemRealizadaReservaEsp">
             <div class="mb-3">
                 <label class="form-label">NOME DO ESPAÇO:</label>
                 <input type="text" th:field="*{espaco.nomeEspaco}" class="form-control">
             </div>
             <button type="submit" class="btn btn-primary">LISTAR</button>
+            <button class="btn btn-dark" type="button">
+                <a href="cadastroReservaEsp" style="color: white; text-decoration: none">CADASTRAR</a>
+            </button>
         </form>
         <br>
 

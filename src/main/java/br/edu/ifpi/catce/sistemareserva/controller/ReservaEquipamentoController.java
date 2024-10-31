@@ -3,11 +3,16 @@ package br.edu.ifpi.catce.sistemareserva.controller;
 import br.edu.ifpi.catce.sistemareserva.model.EquipamentoModel;
 import br.edu.ifpi.catce.sistemareserva.model.FuncionarioModel;
 import br.edu.ifpi.catce.sistemareserva.model.ReservaEquipamentoModel;
+import br.edu.ifpi.catce.sistemareserva.model.ReservaModel;
 import br.edu.ifpi.catce.sistemareserva.repository.EquipamentoRepository;
 import br.edu.ifpi.catce.sistemareserva.repository.FuncionarioRepository;
 import br.edu.ifpi.catce.sistemareserva.repository.ReservaEquipamentoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class ReservaEquipamentoController {
@@ -26,6 +33,8 @@ public class ReservaEquipamentoController {
     FuncionarioRepository funcionarioRepository;
     @Autowired
     ReservaEquipamentoRepository reservaEquipamentoRepository;
+    @Autowired
+    private RestTemplateAutoConfiguration restTemplateAutoConfiguration;
 
     @GetMapping("/reservaEquipamento")
     public String reservaEquipamento(){
@@ -54,25 +63,51 @@ public class ReservaEquipamentoController {
     }
 
     @GetMapping("/listReservaEqui")
-    public String listReservaEqui(Model model){
-        model.addAttribute(new ReservaEquipamentoModel());
+    public String listReservaEqui(@RequestParam(defaultValue = "0") int page,Model model){
+        return loadReservaEquipamento(page,model,null);
+    }
+    @GetMapping("/ListagemRealizadaReservaEqui")
+    public String listagemRealizadaReservaEqui(@RequestParam(defaultValue = "0") int page,@ModelAttribute ReservaEquipamentoModel reservaEquipamentoModel, Model model,RedirectAttributes redirectAttributes) {
+        String filter = reservaEquipamentoModel.getEquipamento().getNomeEquipamento() != null ? reservaEquipamentoModel.getEquipamento().getNomeEquipamento() : "";
+
+        return loadReservaEquipamento(page,model,filter);
+    }
+
+    public String loadReservaEquipamento(int page,Model model,String filter){
+        Pageable pageable = PageRequest.of(page,5);
+        Page<ReservaEquipamentoModel> reservaEquipamentoPages;
+
+        if(filter != null && !filter.isEmpty()){
+            reservaEquipamentoPages = reservaEquipamentoRepository.findReservaEquipamentoByNomeEquipamento(filter,pageable);
+            if(reservaEquipamentoRepository.findReservaEquipamentoByNomeEquipamento(filter,pageable).getSize() >= 5){
+                model.addAttribute("totalItems",1);
+            }
+            System.out.println(reservaEquipamentoRepository.findReservaEquipamentoByNomeEquipamento("",pageable).getSize());
+        }else{
+            reservaEquipamentoPages = reservaEquipamentoRepository.findReservaEquipamentoByNomeEquipamento("",pageable);
+            if(reservaEquipamentoRepository.findReservaEquipamentoByNomeEquipamento("",pageable).getSize() >= 5){
+                model.addAttribute("totalItems",1);
+            }
+            System.out.println(reservaEquipamentoRepository.findReservaEquipamentoByNomeEquipamento("",pageable).getSize());
+        }
+
+        model.addAttribute("reservasEquipamentos", reservaEquipamentoPages.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", reservaEquipamentoPages.getTotalPages());
+
+
+        List<Integer> pageNumbers = IntStream.range(0, reservaEquipamentoPages.getTotalPages())
+                .boxed()
+                .collect(Collectors.toList());
+
+        model.addAttribute("pageNumbers",pageNumbers);
+        model.addAttribute("reservaEquipamentoModel", new ReservaEquipamentoModel());
+        model.addAttribute("filter", filter);
+
         return "ReservaEquipamento/Listar";
     }
-    @PostMapping("/ListagemRealizadaReservaEqui")
-    public String listagemRealizadaReservaEqui(@ModelAttribute ReservaEquipamentoModel reservaEquipamentoModel, Model model,RedirectAttributes redirectAttributes) {
-        String nomeEquipamento = reservaEquipamentoModel.getEquipamento().getNomeEquipamento().toUpperCase();
 
-        List<ReservaEquipamentoModel> reservas = reservaEquipamentoRepository.findReservaModelByNomeEquipamento(nomeEquipamento);
 
-        if (!reservas.isEmpty()) {
-            model.addAttribute("reservas", reservas);
-            return "ReservaEquipamento/Listar";
-        } else {
-            redirectAttributes.addFlashAttribute("mensagem","NOME DE EQUIPAMENTO NÃO ENCOTRADO OU NÃO EXISTE NENHUMA RESERVA COM EQUIPAMENTO!!!");
-            redirectAttributes.addFlashAttribute("style","mensagem alert alert-danger");
-            return "redirect:/listReservaEqui";
-        }
-    }
     @PostMapping("/deletarReservaEqui")
     public String deletarReservaEqui(@RequestParam("id") Integer id, RedirectAttributes redirectAttributes){
         reservaEquipamentoRepository.deleteById(id);

@@ -3,6 +3,9 @@ package br.edu.ifpi.catce.sistemareserva.controller;
 import br.edu.ifpi.catce.sistemareserva.model.FuncionarioModel;
 import br.edu.ifpi.catce.sistemareserva.repository.FuncionarioRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class FuncionarioController {
@@ -40,24 +46,50 @@ public class FuncionarioController {
         redirectAttributes.addFlashAttribute("style","mensagem alert alert-success");
         return "redirect:/cadastroFuncionario";
     }
-
     @GetMapping("/listFunc")
-    public String listagemFuncionario(Model model){
-        model.addAttribute(new FuncionarioModel());
-        return "Funcionario/Listar";
+    public String listFuncionario(@RequestParam(defaultValue = "0") int page, Model model){
+        return loadEspacoPage(page,model,null);
     }
-    @PostMapping("/ListagemFuncionario")
-    public String listagemFuncionario(@ModelAttribute FuncionarioModel funcionarioModel, Model model, RedirectAttributes redirectAttributes){
-        List<FuncionarioModel> funcionarios = funcionarioRepository.findByNomeFuncionario(funcionarioModel.getNomeFuncionario().toUpperCase());
-        if(funcionarios.size() > 0){
-            model.addAttribute(funcionarios);
-        } else{
-            redirectAttributes.addFlashAttribute("mensagem","NÃO EXISTE O FUNCIONARIO OU O NOME NÃO FOI ECONTRADO");
-            redirectAttributes.addFlashAttribute("style","mensagem alert alert-danger");
-            return "redirect:/listFunc";
+
+
+    @GetMapping("/listagemFuncionario")
+    public String listagemFuncionario(@ModelAttribute FuncionarioModel funcionarioModel,@RequestParam(defaultValue = "0") int page, Model model){
+        String filter = funcionarioModel.getNomeFuncionario() != null ? funcionarioModel.getNomeFuncionario().toUpperCase() : "";
+
+        return loadEspacoPage(page,model,filter);
+    }
+
+    private String loadEspacoPage(int page, Model model, String filter){
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<FuncionarioModel> funcionarioPages;
+
+        if(filter != null && !filter.isEmpty()){
+            funcionarioPages = funcionarioRepository.findByNomeFuncionario(filter, pageable);
+            if(funcionarioRepository.findByNomeFuncionario(filter,pageable).getSize() > 5){
+                model.addAttribute("totalItems",1);
+            }
+        }else{
+            funcionarioPages = funcionarioRepository.findAll(pageable);
+            if(funcionarioRepository.findAll().size() > 5){
+                model.addAttribute("totalItems",1);
+            }
         }
+
+        model.addAttribute("funcionarios", funcionarioPages.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", funcionarioPages.getTotalPages());
+
+        List<Integer> pageNumbers = IntStream.range(0, funcionarioPages.getTotalPages())
+                .boxed()
+                .collect(Collectors.toList());
+
+        model.addAttribute("pageNumbers",pageNumbers);
+        model.addAttribute("funcionarioModel",new FuncionarioModel());
+        model.addAttribute("filter", filter);
+
         return "Funcionario/Listar";
     }
+
     @PostMapping("/deletarFuncionario")
     public String deletarFuncionario(@RequestParam("id") Integer id, RedirectAttributes redirectAttributes){
         funcionarioRepository.deleteById(id);

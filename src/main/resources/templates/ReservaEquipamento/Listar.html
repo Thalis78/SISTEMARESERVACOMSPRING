@@ -15,12 +15,15 @@
       LISTAR RESERVA:
     </h1>
 
-    <form method="post" th:object="${reservaEquipamentoModel}" action="/ListagemRealizadaReservaEqui">
+    <form method="get" th:object="${reservaEquipamentoModel}" action="/ListagemRealizadaReservaEqui">
       <div class="mb-3">
         <label class="form-label">NOME DO EQUIPAMENTO:</label>
         <input type="text" th:field="*{equipamento.nomeEquipamento}" class="form-control">
       </div>
       <button type="submit" class="btn btn-primary">LISTAR</button>
+      <button class="btn btn-dark" type="button">
+        <a href="cadastroReservaEqui" style="color: white; text-decoration: none">CADASTRAR</a>
+      </button>
     </form><br>
     <table class="table table-bordered" style="text-align: center">
       <thead>
@@ -33,7 +36,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr th:each="reservas : ${reservas}">
+      <tr th:each="reservas : ${reservasEquipamentos}">
         <td th:text="${reservas.id_reserva}"></td>
         <td th:text="${reservas.equipamento.nomeEquipamento}"></td>
         <td th:text="${reservas.funcionario.nomeFuncionario}"></td>
@@ -52,6 +55,26 @@
       </tr>
       </tbody>
     </table>
+
+    <div>
+      <nav aria-label="Page navigation example" th:if="${totalItems > 0}">
+        <ul class="pagination" style="margin-left: 35%;">
+          <li class="page-item" th:class="${currentPage == 0} ? 'disabled'">
+            <a class="page-link" th:href="@{/listagemReservaEquipamento(page=${currentPage - 1}, nomeEquipamento=${filter})}" aria-label="Previous">&laquo;</a>
+          </li>
+          <th:block th:each="i : ${pageNumbers}">
+            <li class="page-item" th:class="${i == currentPage} ? 'active'">
+              <a class="page-link" th:href="@{/listagemReservaEquipamento(page=${i}, nomeEquipamento=${filter})}" th:text="${i + 1}"
+                 aria-current="${i == currentPage ? 'page' : null}"></a>
+            </li>
+          </th:block>
+          <li class="page-item" th:class="${currentPage == totalPages - 1} ? 'disabled'">
+            <a class="page-link" th:href="@{/listagemReservaEquipamento(page=${currentPage + 1}, nomeEquipamento=${filter})}" aria-label="Next">&raquo;</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
   </div>
 
 </div>

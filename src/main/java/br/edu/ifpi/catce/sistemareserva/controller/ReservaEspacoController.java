@@ -55,7 +55,7 @@ public class ReservaEspacoController {
         model.addAttribute(new ReservaEspacoModel());
         return "ReservaEspaco/Listar";
     }
-    @PostMapping("/ListagemRealizadaReservaEsp")
+    @GetMapping("/ListagemRealizadaReservaEsp")
     public String listagemRealizadaReservaEsp(@ModelAttribute ReservaEspacoModel reservaEspacoModel, Model model,RedirectAttributes redirectAttributes) {
         String nomeEspaco = reservaEspacoModel.getEspaco().getNomeEspaco();
 

@@ -51,7 +51,7 @@ public class EspacoController {
     }
 
     @GetMapping("/listagemEspaco")
-    public String listagemEspaco(@ModelAttribute EspacoModel espacoModel, Model model, RedirectAttributes redirectAttributes, @RequestParam(defaultValue = "0") int page) {
+    public String listagemEspaco(@ModelAttribute EspacoModel espacoModel, Model model, @RequestParam(defaultValue = "0") int page) {
         String filter = espacoModel.getNomeEspaco() != null ? espacoModel.getNomeEspaco().toUpperCase() : "";
         return loadEspacoPage(page, model, filter);
     }
@@ -61,7 +61,6 @@ public class EspacoController {
         Page<EspacoModel> espacosPage;
 
         if (filter != null && !filter.isEmpty()) {
-            model.addAttribute("totalItems",1);
             espacosPage = espacoRepository.findByNomeEspaco(filter, pageable);
             if(espacoRepository.findByNomeEspaco(filter,pageable).getSize() > 5 ){
                 model.addAttribute("totalItems",1);
