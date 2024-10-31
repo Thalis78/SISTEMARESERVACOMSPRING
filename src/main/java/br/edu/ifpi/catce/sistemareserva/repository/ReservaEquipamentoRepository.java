@@ -1,6 +1,7 @@
 package br.edu.ifpi.catce.sistemareserva.repository;
 
 import br.edu.ifpi.catce.sistemareserva.model.ReservaEquipamentoModel;
+import br.edu.ifpi.catce.sistemareserva.model.ReservaEspacoModel;
 import br.edu.ifpi.catce.sistemareserva.model.ReservaModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,6 @@ public interface ReservaEquipamentoRepository extends JpaRepository<ReservaModel
     void  updateReservaModelById_reserva(@Param("id") Integer id, @Param("equipamento") Integer equipamento, @Param("func") Integer func);
 
     @Query("SELECT r FROM ReservaEquipamentoModel r WHERE r.equipamento.nomeEquipamento LIKE %:nomeEquipamento")
-    Page<ReservaEquipamentoModel> findReservaEquipamentoByNomeEquipamento(String nomeEquipamento, Pageable pageable);
+    Page<ReservaEquipamentoModel> findReservaEquipamentoByNomeEquipamento(@Param("nomeEquipamento") String nomeEquipamento, Pageable pageable);
 
 }

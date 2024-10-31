@@ -57,7 +57,7 @@ public class EspacoController {
     }
 
     private String loadEspacoPage(int page, Model model, String filter) {
-        Pageable pageable = PageRequest.of(page, 5); 
+        Pageable pageable = PageRequest.of(page, 5);
         Page<EspacoModel> espacosPage;
 
         if (filter != null && !filter.isEmpty()) {
@@ -76,9 +76,16 @@ public class EspacoController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", espacosPage.getTotalPages());
 
+        if (espacosPage.getTotalElements() > 5) {
+            model.addAttribute("totalItems", 1);
+        } else {
+            model.addAttribute("totalItems", 0);
+        }
+
         List<Integer> pageNumbers = IntStream.range(0, espacosPage.getTotalPages())
                 .boxed()
                 .collect(Collectors.toList());
+
         model.addAttribute("pageNumbers", pageNumbers);
         model.addAttribute("espacoModel", new EspacoModel());
         model.addAttribute("filter", filter);

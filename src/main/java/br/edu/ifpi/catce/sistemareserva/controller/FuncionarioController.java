@@ -48,7 +48,7 @@ public class FuncionarioController {
     }
     @GetMapping("/listFunc")
     public String listFuncionario(@RequestParam(defaultValue = "0") int page, Model model){
-        return loadEspacoPage(page,model,null);
+        return loadFuncionarioPage(page,model,null);
     }
 
 
@@ -56,32 +56,33 @@ public class FuncionarioController {
     public String listagemFuncionario(@ModelAttribute FuncionarioModel funcionarioModel,@RequestParam(defaultValue = "0") int page, Model model){
         String filter = funcionarioModel.getNomeFuncionario() != null ? funcionarioModel.getNomeFuncionario().toUpperCase() : "";
 
-        return loadEspacoPage(page,model,filter);
+        return loadFuncionarioPage(page,model,filter);
     }
 
-    private String loadEspacoPage(int page, Model model, String filter){
+    private String loadFuncionarioPage(int page, Model model, String filter){
         Pageable pageable = PageRequest.of(page, 5);
         Page<FuncionarioModel> funcionarioPages;
 
         if(filter != null && !filter.isEmpty()){
             funcionarioPages = funcionarioRepository.findByNomeFuncionario(filter, pageable);
-            if(funcionarioRepository.findByNomeFuncionario(filter,pageable).getSize() > 5){
-                model.addAttribute("totalItems",1);
-            }
         }else{
             funcionarioPages = funcionarioRepository.findAll(pageable);
-            if(funcionarioRepository.findAll().size() > 5){
-                model.addAttribute("totalItems",1);
-            }
         }
 
         model.addAttribute("funcionarios", funcionarioPages.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", funcionarioPages.getTotalPages());
 
+        if (funcionarioPages.getTotalElements() > 5) {
+            model.addAttribute("totalItems", 1);
+        } else {
+            model.addAttribute("totalItems", 0);
+        }
+
         List<Integer> pageNumbers = IntStream.range(0, funcionarioPages.getTotalPages())
                 .boxed()
                 .collect(Collectors.toList());
+
 
         model.addAttribute("pageNumbers",pageNumbers);
         model.addAttribute("funcionarioModel",new FuncionarioModel());

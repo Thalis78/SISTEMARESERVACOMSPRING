@@ -79,6 +79,7 @@ public class EquipamentoController {
     // VAI MOSTRAR TODOS OS RESULTADOS PAGINADO EM LOTES DE 5 POR VEZ.
     // LÓGICA USADA PARA FORMATAR OS DADOS DA VISUALIZAÇÃO, INDEPENDETEMENTE DE O USUÁRIO ESTAR FILTRANDO OU NÃO.
     private String loadEquipamentoPage(int page, Model model, String filter) {
+
         //PAGEABLE É UMA INTERFACE QUE ENCAPSULA INFORMAÇÕES SOBRE A SOLICITAÇÃO DE UMA PÁGINA DE DADOS.
         //ISSO INCLUI O NÚMERO DE PÁGINA, O TAMANHO DA PÁGINA E,OPCIONALMENTE, A ODERNAÇÃO DOS RESULTADOS.
         Pageable pageable = PageRequest.of(page, 5);
@@ -89,20 +90,21 @@ public class EquipamentoController {
         //RETORNA A FILTRAGEM
         if (filter != null && !filter.isEmpty()) {
             equipamentosPage = equipamentoRepository.findByNomeEquipamento(filter, pageable);
-            if(equipamentoRepository.findByNomeEquipamento(filter,pageable).getSize() > 5 ){
-                model.addAttribute("totalItems",1);
-            }
         } else {
             //RETORNA TODOS OS ELEMENTOS QUE EXISTEM NO BANCO DE DADOS
             equipamentosPage = equipamentoRepository.findAll(pageable);
-            if(equipamentoRepository.findAll().size() > 5){
-                model.addAttribute("totalItems",1);
-            }
         }
 
         model.addAttribute("equipamentos", equipamentosPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", equipamentosPage.getTotalPages());
+
+
+        if (equipamentosPage.getTotalElements() > 5) {
+            model.addAttribute("totalItems", 1);
+        } else {
+            model.addAttribute("totalItems", 0);
+        }
 
         List<Integer> pageNumbers = IntStream.range(0, equipamentosPage.getTotalPages())
                 .boxed()

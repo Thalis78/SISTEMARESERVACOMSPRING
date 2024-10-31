@@ -43,7 +43,7 @@
         <td>
           <form method="get" action="/atualizarPorIdReservaEquipamento">
             <input type="hidden" name="id" th:value="${reservas.id_reserva}">
-            <button type="submit" class="btn btn-primary">ATUALIZAR</button>
+            <button type="submit" class="btn btn-primary">EDITAR</button>
           </form>
         </td>
         <td>
@@ -56,24 +56,25 @@
       </tbody>
     </table>
 
-    <div>
+    <div class="style-pagination">
       <nav aria-label="Page navigation example" th:if="${totalItems > 0}">
         <ul class="pagination" style="margin-left: 35%;">
           <li class="page-item" th:class="${currentPage == 0} ? 'disabled'">
-            <a class="page-link" th:href="@{/listagemReservaEquipamento(page=${currentPage - 1}, nomeEquipamento=${filter})}" aria-label="Previous">&laquo;</a>
+            <a class="page-link" th:href="@{/ListagemRealizadaReservaEqui(page=${currentPage - 1}, equipamento.nomeEquipamento=${filter})}" aria-label="Previous">&laquo;</a>
           </li>
           <th:block th:each="i : ${pageNumbers}">
             <li class="page-item" th:class="${i == currentPage} ? 'active'">
-              <a class="page-link" th:href="@{/listagemReservaEquipamento(page=${i}, nomeEquipamento=${filter})}" th:text="${i + 1}"
+              <a class="page-link" th:href="@{/ListagemRealizadaReservaEqui(page=${i}, equipamento.nomeEquipamento=${filter})}" th:text="${i + 1}"
                  aria-current="${i == currentPage ? 'page' : null}"></a>
             </li>
           </th:block>
           <li class="page-item" th:class="${currentPage == totalPages - 1} ? 'disabled'">
-            <a class="page-link" th:href="@{/listagemReservaEquipamento(page=${currentPage + 1}, nomeEquipamento=${filter})}" aria-label="Next">&raquo;</a>
+            <a class="page-link" th:href="@{/ListagemRealizadaReservaEsp(page=${currentPage + 1}, equipamento.nomeEquipamento=${filter})}" aria-label="Next">&raquo;</a>
           </li>
         </ul>
       </nav>
     </div>
+
 
   </div>
 

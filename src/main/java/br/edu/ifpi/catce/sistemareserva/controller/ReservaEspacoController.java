@@ -4,6 +4,10 @@ import br.edu.ifpi.catce.sistemareserva.model.*;
 import br.edu.ifpi.catce.sistemareserva.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class ReservaEspacoController {
@@ -51,25 +57,51 @@ public class ReservaEspacoController {
     }
 
     @GetMapping("/listReservaEsp")
-    public String listReservaEqui(Model model){
-        model.addAttribute(new ReservaEspacoModel());
+    public String listReservaEsp(@RequestParam(defaultValue = "0") int page, Model model) {
+        return loadReservaEspaco(page, model, null);
+    }
+
+    @GetMapping("/ListagemRealizadaReservaEsp")
+    public String listagemRealizadaReservaEsp(@RequestParam(defaultValue = "0") int page,
+                                              Model model,ReservaEspacoModel reservaEspacoModel) {
+        String nomeEspaco = reservaEspacoModel.getEspaco().getNomeEspaco();
+        return loadReservaEspaco(page, model, nomeEspaco);
+    }
+
+    private String loadReservaEspaco(int page, Model model, String filter) {
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<ReservaEspacoModel> reservaEspacoPages;
+
+        if (filter != null && !filter.isEmpty()) {
+            reservaEspacoPages = reservaEspacoRepository.findReservaEspacoByNomeEspaco(filter, pageable);
+        } else {
+            reservaEspacoPages = reservaEspacoRepository.findReservaEspacoByNomeEspaco("", pageable);
+        }
+
+        model.addAttribute("reservasEspacos", reservaEspacoPages.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", reservaEspacoPages.getTotalPages());
+        model.addAttribute("totalItems", reservaEspacoPages.getTotalElements());
+
+        List<Integer> pageNumbers = IntStream.range(0, reservaEspacoPages.getTotalPages())
+                .boxed()
+                .collect(Collectors.toList());
+
+        model.addAttribute("pageNumbers", pageNumbers);
+        model.addAttribute("reservaEspacoModel", new ReservaEspacoModel());
+
+        if (reservaEspacoPages.getTotalElements() > 5) {
+            model.addAttribute("totalItems", 1);
+        } else {
+            model.addAttribute("totalItems", 0);
+        }
+
+        model.addAttribute("filter", filter);
+
         return "ReservaEspaco/Listar";
     }
-    @GetMapping("/ListagemRealizadaReservaEsp")
-    public String listagemRealizadaReservaEsp(@ModelAttribute ReservaEspacoModel reservaEspacoModel, Model model,RedirectAttributes redirectAttributes) {
-        String nomeEspaco = reservaEspacoModel.getEspaco().getNomeEspaco();
 
-        List<ReservaEspacoModel> reservas = reservaEspacoRepository.findReservaEspacoByNomeEspaco(nomeEspaco);
 
-        if (!reservas.isEmpty()) {
-            model.addAttribute("reservasEsp", reservas);
-            return "ReservaEspaco/Listar";
-        } else {
-            redirectAttributes.addFlashAttribute("mensagem","NOME DE ESPAÇO NÃO ENCOTRADO OU NÃO EXISTE RESERVA COM ESPAÇO!!!");
-            redirectAttributes.addFlashAttribute("style","mensagem alert alert-danger");
-            return "redirect:/listReservaEsp";
-        }
-    }
 
     @PostMapping("/deletarReservaEsp")
     public String deletarReservaEsp(@RequestParam("id") Integer id,RedirectAttributes redirectAttributes){
