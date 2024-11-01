@@ -69,7 +69,7 @@
             </li>
           </th:block>
           <li class="page-item" th:class="${currentPage == totalPages - 1} ? 'disabled'">
-            <a class="page-link" th:href="@{/ListagemRealizadaReservaEsp(page=${currentPage + 1}, equipamento.nomeEquipamento=${filter})}" aria-label="Next">&raquo;</a>
+            <a class="page-link" th:href="@{/ListagemRealizadaReservaEqui(page=${currentPage + 1}, equipamento.nomeEquipamento=${filter})}" aria-label="Next">&raquo;</a>
           </li>
         </ul>
       </nav>
