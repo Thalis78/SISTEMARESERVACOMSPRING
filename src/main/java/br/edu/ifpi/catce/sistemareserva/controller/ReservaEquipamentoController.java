@@ -60,23 +60,28 @@ public class ReservaEquipamentoController {
         return "redirect:/cadastroReservaEqui";
     }
     @GetMapping("/listReservaEqui")
-    public String listReservaEqui(@RequestParam(defaultValue = "0") int page, Model model) {
-        return loadReservaEquipamento(page, model, null);
+    public String listReservaEqui(@RequestParam(defaultValue = "0") int page, Model model,RedirectAttributes redirectAttributes) {
+        return loadReservaEquipamento(page, model, null,redirectAttributes);
     }
 
     @GetMapping("/ListagemRealizadaReservaEqui")
     public String listagemRealizadaReservaEqui(@RequestParam(defaultValue = "0") int page,
-                                              Model model,ReservaEquipamentoModel reservaEquipamentoModel) {
+                                              Model model,ReservaEquipamentoModel reservaEquipamentoModel,RedirectAttributes redirectAttributes) {
         String nomeEquipamento = reservaEquipamentoModel.getEquipamento().getNomeEquipamento();
-        return loadReservaEquipamento(page, model, nomeEquipamento);
+        return loadReservaEquipamento(page, model, nomeEquipamento,redirectAttributes);
     }
 
-    private String loadReservaEquipamento(int page, Model model, String filter) {
+    private String loadReservaEquipamento(int page, Model model, String filter,RedirectAttributes redirectAttributes) {
         Pageable pageable = PageRequest.of(page, 5);
         Page<ReservaEquipamentoModel> reservaEquipamentoPages;
 
         if (filter != null && !filter.isEmpty()) {
             reservaEquipamentoPages = reservaEquipamentoRepository.findReservaEquipamentoByNomeEquipamento(filter, pageable);
+            if(reservaEquipamentoPages.getTotalElements() == 0){
+                redirectAttributes.addFlashAttribute("mensagem", "NÃO EXISTE RESERVA COM ESSE EQUIPAMENTO!!!");
+                redirectAttributes.addFlashAttribute("style", "mensagem alert alert-danger");
+                return "redirect:/listReservaEqui";
+            }
         } else {
             reservaEquipamentoPages = reservaEquipamentoRepository.findReservaEquipamentoByNomeEquipamento("", pageable);
         }

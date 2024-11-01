@@ -46,30 +46,29 @@ public class EspacoController {
     }
 
     @GetMapping("/listEspaco")
-    public String listEspaco(@RequestParam(defaultValue = "0") int page, Model model) {
-        return loadEspacoPage(page, model, null);
+    public String listEspaco(@RequestParam(defaultValue = "0") int page, Model model,RedirectAttributes redirectAttributes) {
+        return loadEspacoPage(page, model, null,redirectAttributes);
     }
 
     @GetMapping("/listagemEspaco")
-    public String listagemEspaco(@ModelAttribute EspacoModel espacoModel, Model model, @RequestParam(defaultValue = "0") int page) {
-        String filter = espacoModel.getNomeEspaco() != null ? espacoModel.getNomeEspaco().toUpperCase() : "";
-        return loadEspacoPage(page, model, filter);
+    public String listagemEspaco(@ModelAttribute EspacoModel espacoModel, Model model, @RequestParam(defaultValue = "0") int page,RedirectAttributes redirectAttributes) {
+        String filter = espacoModel.getNomeEspaco().toUpperCase();
+        return loadEspacoPage(page, model, filter,redirectAttributes);
     }
 
-    private String loadEspacoPage(int page, Model model, String filter) {
+    private String loadEspacoPage(int page, Model model, String filter,RedirectAttributes redirectAttributes) {
         Pageable pageable = PageRequest.of(page, 5);
         Page<EspacoModel> espacosPage;
 
         if (filter != null && !filter.isEmpty()) {
             espacosPage = espacoRepository.findByNomeEspaco(filter, pageable);
-            if(espacoRepository.findByNomeEspaco(filter,pageable).getSize() > 5 ){
-                model.addAttribute("totalItems",1);
+            if(espacosPage.getTotalElements() == 0){
+                redirectAttributes.addFlashAttribute("mensagem", "NÃO EXISTE O ESPAÇO!!!");
+                redirectAttributes.addFlashAttribute("style", "mensagem alert alert-danger");
+                return "redirect:/listEspaco";
             }
         } else {
             espacosPage = espacoRepository.findAll(pageable);
-            if(espacoRepository.findAll().size() > 5){
-                model.addAttribute("totalItems",1);
-            }
         }
 
         model.addAttribute("espacos", espacosPage.getContent());

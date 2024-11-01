@@ -57,23 +57,28 @@ public class ReservaEspacoController {
     }
 
     @GetMapping("/listReservaEsp")
-    public String listReservaEsp(@RequestParam(defaultValue = "0") int page, Model model) {
-        return loadReservaEspaco(page, model, null);
+    public String listReservaEsp(@RequestParam(defaultValue = "0") int page, Model model,RedirectAttributes redirectAttributes) {
+        return loadReservaEspaco(page, model, null,redirectAttributes);
     }
 
     @GetMapping("/ListagemRealizadaReservaEsp")
     public String listagemRealizadaReservaEsp(@RequestParam(defaultValue = "0") int page,
-                                              Model model,ReservaEspacoModel reservaEspacoModel) {
+                                              Model model,ReservaEspacoModel reservaEspacoModel,RedirectAttributes redirectAttributes) {
         String nomeEspaco = reservaEspacoModel.getEspaco().getNomeEspaco();
-        return loadReservaEspaco(page, model, nomeEspaco);
+        return loadReservaEspaco(page, model, nomeEspaco,redirectAttributes);
     }
 
-    private String loadReservaEspaco(int page, Model model, String filter) {
+    private String loadReservaEspaco(int page, Model model, String filter,RedirectAttributes redirectAttributes) {
         Pageable pageable = PageRequest.of(page, 5);
         Page<ReservaEspacoModel> reservaEspacoPages;
 
         if (filter != null && !filter.isEmpty()) {
             reservaEspacoPages = reservaEspacoRepository.findReservaEspacoByNomeEspaco(filter, pageable);
+            if(reservaEspacoPages.getTotalElements() == 0){
+                redirectAttributes.addFlashAttribute("mensagem", "NÃO EXISTE RESERVA COM ESSE ESPAÇO!!!");
+                redirectAttributes.addFlashAttribute("style", "mensagem alert alert-danger");
+                return "redirect:/listReservaEsp";
+            }
         } else {
             reservaEspacoPages = reservaEspacoRepository.findReservaEspacoByNomeEspaco("", pageable);
         }

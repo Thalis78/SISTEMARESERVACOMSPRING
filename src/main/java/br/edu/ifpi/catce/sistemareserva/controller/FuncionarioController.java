@@ -47,24 +47,29 @@ public class FuncionarioController {
         return "redirect:/cadastroFuncionario";
     }
     @GetMapping("/listFunc")
-    public String listFuncionario(@RequestParam(defaultValue = "0") int page, Model model){
-        return loadFuncionarioPage(page,model,null);
+    public String listFuncionario(@RequestParam(defaultValue = "0") int page, Model model,RedirectAttributes redirectAttributes){
+        return loadFuncionarioPage(page,model,null,redirectAttributes);
     }
 
 
     @GetMapping("/listagemFuncionario")
-    public String listagemFuncionario(@ModelAttribute FuncionarioModel funcionarioModel,@RequestParam(defaultValue = "0") int page, Model model){
-        String filter = funcionarioModel.getNomeFuncionario() != null ? funcionarioModel.getNomeFuncionario().toUpperCase() : "";
+    public String listagemFuncionario(@ModelAttribute FuncionarioModel funcionarioModel,@RequestParam(defaultValue = "0") int page, Model model,RedirectAttributes redirectAttributes){
+        String filter =funcionarioModel.getNomeFuncionario().toUpperCase();
 
-        return loadFuncionarioPage(page,model,filter);
+        return loadFuncionarioPage(page,model,filter,redirectAttributes);
     }
 
-    private String loadFuncionarioPage(int page, Model model, String filter){
+    private String loadFuncionarioPage(int page, Model model, String filter,RedirectAttributes redirectAttributes){
         Pageable pageable = PageRequest.of(page, 5);
         Page<FuncionarioModel> funcionarioPages;
 
         if(filter != null && !filter.isEmpty()){
             funcionarioPages = funcionarioRepository.findByNomeFuncionario(filter, pageable);
+            if(funcionarioPages.getTotalElements() == 0){
+                redirectAttributes.addFlashAttribute("mensagem", "NÃO EXISTE O FUNCIONARIO!!!");
+                redirectAttributes.addFlashAttribute("style", "mensagem alert alert-danger");
+                return "redirect:/listFunc";
+            }
         }else{
             funcionarioPages = funcionarioRepository.findAll(pageable);
         }

@@ -57,28 +57,28 @@ public class EquipamentoController {
     @GetMapping("/listEquipamento")
     // REQUESTPARAM É USADO PARA ESPECIFICAR QUE IREMOS RECEBER UM DADO EM UMA REQUISIÇÃO
     // DEFINIMOS UM VALOR PADRÃO PRA CASO O PARÂMETRO NÃO SEJA FORNECIDO NA REQUISIÇÃO.
-    public String listEquipamento(@RequestParam(defaultValue = "0") int page, Model model) {
-        return loadEquipamentoPage(page, model, null);
+    public String listEquipamento(@RequestParam(defaultValue = "0") int page,RedirectAttributes redirectAttributes, Model model) {
+        return loadEquipamentoPage(page, model, null,redirectAttributes);
     }
 
     //CONTEM DADOS DO FORMULÁRIO, ESPECIFICAMENTE O NOME DO EQUIPAMENTO PARA FILTRAGEM.
     @GetMapping("/listagemEquipamento")
     //MODELATTRIBUTE VAI SER USADO PARA VINCULAR DADOS DE UM FORMULÁRIO A UM OBJETO EM UM MÉTODO DO CONTROLADOR.
     public String listagemEquipamento(@ModelAttribute EquipamentoModel equipamentoModel,
-                                      Model model,
+                                      Model model,RedirectAttributes redirectAttributes,
                                       @RequestParam(defaultValue = "0") int page) {
-        String filter = equipamentoModel.getNomeEquipamento() != null
-                ? equipamentoModel.getNomeEquipamento().toUpperCase()
-                : "";
+        String filter = equipamentoModel.getNomeEquipamento().toUpperCase();
+
+
 
         // PASSA A PÁGINA ATUAL COM O FILTRO;
 
-        return loadEquipamentoPage(page, model, filter);
+        return loadEquipamentoPage(page, model, filter,redirectAttributes);
     }
 
     // VAI MOSTRAR TODOS OS RESULTADOS PAGINADO EM LOTES DE 5 POR VEZ.
     // LÓGICA USADA PARA FORMATAR OS DADOS DA VISUALIZAÇÃO, INDEPENDETEMENTE DE O USUÁRIO ESTAR FILTRANDO OU NÃO.
-    private String loadEquipamentoPage(int page, Model model, String filter) {
+    private String loadEquipamentoPage(int page, Model model, String filter,RedirectAttributes redirectAttributes) {
 
         //PAGEABLE É UMA INTERFACE QUE ENCAPSULA INFORMAÇÕES SOBRE A SOLICITAÇÃO DE UMA PÁGINA DE DADOS.
         //ISSO INCLUI O NÚMERO DE PÁGINA, O TAMANHO DA PÁGINA E,OPCIONALMENTE, A ODERNAÇÃO DOS RESULTADOS.
@@ -90,6 +90,11 @@ public class EquipamentoController {
         //RETORNA A FILTRAGEM
         if (filter != null && !filter.isEmpty()) {
             equipamentosPage = equipamentoRepository.findByNomeEquipamento(filter, pageable);
+            if(equipamentosPage.getTotalElements() == 0){
+                redirectAttributes.addFlashAttribute("mensagem", "NÃO EXISTE O EQUIPAMENTO!!!");
+                redirectAttributes.addFlashAttribute("style", "mensagem alert alert-danger");
+                return "redirect:/listEquipamento";
+            }
         } else {
             //RETORNA TODOS OS ELEMENTOS QUE EXISTEM NO BANCO DE DADOS
             equipamentosPage = equipamentoRepository.findAll(pageable);
